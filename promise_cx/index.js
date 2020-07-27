@@ -46,6 +46,9 @@ class Promise {
         this.onFulfilledCallback = [] // 存储异步成功状态函数
 
         const resolve = (value) => {
+            if (value instanceof Promise) {
+                return value.then(resolve, reject)
+            }
             if (this.status === PENDING) {
                 this.status = FULFIlled
                 this.value = value
@@ -114,6 +117,23 @@ class Promise {
         
         return promise2
     }
+    catch (errCallback) {
+        this.then(null, errCallback)
+    }
+}
+
+// 如果value是一个promise会等待这个promise执行完才会往下传递值
+Promise.resolve = function (value) {
+    return new Promise((resolve, reject) => {
+        resolve(value)
+    })
+}
+
+// 如果value是一个promise会立即往下传递值
+Promise.reject = function (reason) {
+    return new Promise((resolve, reject) => {
+        reject(reason)
+    })
 }
 
 Promise.defer = Promise.deferred = function () {
